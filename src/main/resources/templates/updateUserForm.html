@@ -1,0 +1,51 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Update User</title>
+</head>
+<body>
+<style>
+    table {
+        border-collapse: collapse;
+    }
+
+    th, td {
+        text-align: center;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+</style>
+<table>
+    <tr>
+        <th> User id</th>
+        <th> User name</th>
+        <th> User password</th>
+        <th> User age</th>
+        <th> User role</th>
+        <th> Action</th>
+    </tr>
+    <tr>
+    <tr>
+        <form action="/admin/editUser" method="post">
+            <td th:text="${user.getId()}"> id</td>
+            <td><input name="name" th:value="${user.name}"> name</td>
+            <td><input name="password" th:value="${user.password}"> password</td>
+            <td><input name="age" th:value="${user.age}" type="number"> age</td>
+            <td style="text-align: center">
+                <input type="checkbox" name="roles" value="admin">admin<Br>
+                <input type="checkbox" checked="true" name="roles" value="user">user<Br>
+            </td>
+            <td>
+                <button name="id" th:value="${user.id}" type="submit">Edit</button>
+        </form>
+        </td>
+    </tr>
+</table>
+<form action="/logout" method="GET">
+    <input type="submit" value="Log out">
+</form>
+</body>
+</html>

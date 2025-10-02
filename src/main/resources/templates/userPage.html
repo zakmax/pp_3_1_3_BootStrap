@@ -1,0 +1,15 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>user page</title>
+</head>
+<body>
+
+<h1 th:text="Hello + ' ' + ${user.name}"></h1>
+<h2 th:text="Age + ':'+' ' + ${user.age}"></h2>
+
+<form action="/logout" method="GET">
+    <input type="submit" value="Log out">
+</form>
+</body>
+</html>
