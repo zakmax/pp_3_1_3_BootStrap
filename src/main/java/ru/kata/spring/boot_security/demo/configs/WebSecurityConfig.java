@@ -18,9 +18,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
+    private  final SuccessUserHandler successUserHandler;
 
-    public WebSecurityConfig(@Qualifier("userServiceImpl") @Lazy UserDetailsService userDetailsService) {
+
+    public WebSecurityConfig(@Qualifier("userServiceImpl") @Lazy UserDetailsService userDetailsService, SuccessUserHandler successUserHandler) {
         this.userDetailsService = userDetailsService;
+        this.successUserHandler = successUserHandler;
     }
 
     @Override
@@ -31,19 +34,43 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+
                 .authorizeRequests()
                 .antMatchers("/admin").hasAuthority("admin")
-                .antMatchers("/login").permitAll()
+                .antMatchers("/user").authenticated()  // Разрешаем всем аутентифицированным
+                .antMatchers("/login", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
-                .usernameParameter("name")
+                .usernameParameter("email")
                 .passwordParameter("password")
                 .successHandler(new SuccessUserHandler())
                 .loginPage("/login")
+                .permitAll()
                 .and()
-                .exceptionHandling()
-                .accessDeniedPage("/");
+                .logout()
+                .logoutSuccessUrl("/login?logout")
+                .permitAll();
+
+
+
+//                .authorizeRequests()
+//                .antMatchers("/admin").hasAuthority("admin")
+//                .antMatchers("/user").hasAnyAuthority("admin","user")
+//
+//                .antMatchers("/login").permitAll()
+//                .anyRequest().authenticated()
+//                .and()
+//                .formLogin()
+//                .usernameParameter("email")
+//                .passwordParameter("password")
+//                .successHandler(new SuccessUserHandler())
+//                .loginPage("/login")
+//                .permitAll()
+//                .and()
+//                .logout()
+//                .permitAll();
+
         http.csrf().disable();
     }
 

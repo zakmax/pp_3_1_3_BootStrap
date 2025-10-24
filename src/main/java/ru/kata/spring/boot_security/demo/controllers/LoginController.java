@@ -9,6 +9,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/login")
 public class LoginController {
 
+//    @GetMapping
+//    public String indexPage(Authentication authentication) {
+//        System.out.println("=== LOGIN CONTROLLER ===");
+//        System.out.println("Authentication: " + authentication);
+//
+//        if (authentication != null && authentication.isAuthenticated()) {
+//            System.out.println("User already authenticated, redirecting to /user");
+//            return "redirect:/user";
+//        }
+//        System.out.println("Showing login page");
+//        return "login";
+//    }
+//}
+
+
+
+
     @GetMapping
     public String indexPage(Authentication authentication) {
         if (authentication != null) {

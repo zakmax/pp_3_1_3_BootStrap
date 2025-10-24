@@ -19,11 +19,17 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+//    private String name;
+
+    private  String firstName;
+    private  String lastName;
 
     private Integer age;
 
     private String password;
+
+    @Column(unique = true, nullable = false)
+    private String email;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(name = "user_roles",
@@ -39,22 +45,51 @@ public class User implements UserDetails {
     public User() {
     }
 
+    public User(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+
     public User(UserDao userDao) {
         if (userDao.getId() != null) {
             this.id = userDao.getId();
         } else {
             this.id = null;
         }
-        this.name = userDao.getName();
+
+        this.firstName = userDao.getFirstName();  // Заменяем
+        this.lastName = userDao.getLastName();
+        this.email = userDao.getEmail();
         this.password = userDao.getPassword();
         this.age = userDao.getAge();
         this.roles = new HashSet<>();
     }
 
-    public User(String name, Integer age, String password) {
-        this.name = name;
-        this.age = age;
-        this.password = password;
+
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Long getId() {
@@ -65,13 +100,13 @@ public class User implements UserDetails {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+//    public String getName() {
+//        return name;
+//    }
+//
+//    public void setName(String name) {
+//        this.name = name;
+//    }
 
     public int getAge() {
         return age;
@@ -104,7 +139,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return name;
+        return email;
     }
 
     @Override
@@ -127,6 +162,9 @@ public class User implements UserDetails {
         return true;
     }
 
+
+
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -143,13 +181,16 @@ public class User implements UserDetails {
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
                 ", age=" + age +
                 ", password='" + password + '\'' +
-//                ", role=" + roles +
+                ", email='" + email + '\'' +
+                ", roles=" + roles +
                 '}';
     }
 }
+
 
 
 

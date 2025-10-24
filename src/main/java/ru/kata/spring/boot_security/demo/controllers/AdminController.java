@@ -1,5 +1,8 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -7,12 +10,21 @@ import ru.kata.spring.boot_security.demo.dao.UserDao;
 import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
+import java.net.Authenticator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+
+
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+
+
+
+
 
     private UserService userService;
 
@@ -21,26 +33,91 @@ public class AdminController {
     }
 
     @GetMapping
-    public String getAllUsers(Model model) {
-        List<UserDao> userDaoList = new ArrayList<>();
-        for (User user : userService.allUsers()) {
-            userDaoList.add(new UserDao(user));
+    public String getAllUsers(Authentication authentication, Model model) {
+        try {
+            System.out.println("=== ADMIN PANEL ===");
+
+            // Получаем текущего пользователя для header
+            User currentUser = userService.getUserByEmail(authentication.getName());
+            model.addAttribute("currentUser", new UserDao(currentUser));
+
+            // Получаем список всех пользователей
+            List<UserDao> userDaoList = userService.allUsers().stream()
+                    .map(UserDao::new)
+                    .collect(Collectors.toList());
+            model.addAttribute("userList", userDaoList);
+
+            System.out.println("Users count: " + userDaoList.size());
+            return "table";
+        } catch (Exception e) {
+            System.out.println("Error in admin panel: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/login?error";
         }
-        model.addAttribute("userList", userDaoList);
-        return "table";
+    }
+
+    @GetMapping("/newUser")
+    public String showNewUserForm(Authentication authentication, Model model,
+                                  @RequestParam(value = "error", required = false) String error) {
+        try {
+            System.out.println("=== NEW USER FORM ===");
+
+            User currentUser = userService.getUserByEmail(authentication.getName());
+            model.addAttribute("currentUser", new UserDao(currentUser));
+            model.addAttribute("userDao", new UserDao());
+
+            if ("email_exists".equals(error)) {
+                model.addAttribute("errorMessage", "User with this email already exists!");
+            }
+
+            System.out.println("Showing new-user form");
+            return "new-user";
+        } catch (Exception e) {
+            System.out.println("Error showing new user form: " + e.getMessage());
+            return "redirect:/admin?error";
+        }
     }
 
     @PostMapping("/userAdd")
-    public String addUser(UserDao userDao) {
-        if (userService.addUser(userDao)) {
-            return "redirect:/admin";
-        } else {
-            return "wrongName";
+    public String addUser(@ModelAttribute UserDao userDao,
+                          @RequestParam(value = "roles", required = false) String[] roles) {
+
+        System.out.println("=== ADD USER PROCESSING ===");
+        System.out.println("UserDao: " + userDao);
+        System.out.println("First Name: " + userDao.getFirstName());
+        System.out.println("Last Name: " + userDao.getLastName());
+        System.out.println("Email: " + userDao.getEmail());
+        System.out.println("Age: " + userDao.getAge());
+        System.out.println("Password: " + (userDao.getPassword() != null ? "[SET]" : "[NULL]"));
+        System.out.println("Roles param: " + (roles != null ? Arrays.toString(roles) : "null"));
+
+        if (roles != null) {
+            userDao.setRoles(roles);
+            System.out.println("Roles set to UserDao: " + Arrays.toString(userDao.getRoles()));
+        }
+
+        try {
+            boolean result = userService.addUser(userDao);
+            System.out.println("Add user result: " + result);
+
+            if (result) {
+                System.out.println("User added successfully, redirecting to /admin");
+                return "redirect:/admin";
+            } else {
+                System.out.println("Failed to add user (email exists), redirecting with error");
+                return "redirect:/admin/newUser?error=email_exists";
+            }
+        } catch (Exception e) {
+            System.out.println("EXCEPTION in addUser: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/admin/newUser?error=system_error";
         }
     }
 
     @GetMapping("/delete")
     public String deleteUser(@RequestParam("id") long id) {
+        System.out.println("Deleting user with id: " + id);
+        userService.deleteUser(id);
         return "redirect:/admin";
     }
 
@@ -51,12 +128,13 @@ public class AdminController {
     }
 
     @PostMapping("/editUser")
-    public String editUser(@ModelAttribute("user") UserDao userDao, Model model) {
-        if (userService.updateUser(userDao )) {
-            model.addAttribute("userList", userService.allUsers());
+    public String editUser(@ModelAttribute("user") UserDao userDao) {
+        if (userService.updateUser(userDao)) {
             return "redirect:/admin";
         } else {
             return "wrongName";
         }
     }
 }
+
+

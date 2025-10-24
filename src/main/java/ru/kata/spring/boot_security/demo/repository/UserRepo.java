@@ -8,7 +8,9 @@ import java.util.Optional;
 
 public interface UserRepo extends CrudRepository<User, Integer> {
     User findById(Long id);
-    Optional<User> findByName(String name);
+//    Optional<User> findByName(String name);
+    Optional<User> findByEmail(String email);
     List<User> findAll();
     void deleteById(Long id);
+
 }

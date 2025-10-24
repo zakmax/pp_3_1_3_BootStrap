@@ -10,20 +10,54 @@ import java.util.Arrays;
 
 public class UserDao {
     private Long id;
-    private String name;
+//    private String name;
+
+    private  String firstName;
+    private  String lastName;
+
     private String password;
     private Integer age;
     private String[] roles;
+    private String email;
 
     public UserDao() {}
 
     public UserDao(User user) {
+        email = user.getEmail();
         id = user.getId();
-        name = user.getName();
+//        name = user.getName();
+
+        firstName = user.getFirstName();
+        lastName = user.getLastName();
+
         password = user.getPassword();
         age = user.getAge();
         Object[] objectArr = user.getRoles().stream().map(Role::getNameRole).toArray();
         this.roles = Arrays.copyOf(objectArr, objectArr.length, String[].class);
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Long getId() {
@@ -34,13 +68,13 @@ public class UserDao {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+//    public String getName() {
+//        return name;
+//    }
+//
+//    public void setName(String name) {
+//        this.name = name;
+//    }
 
     public String getPassword() {
         return password;
@@ -74,10 +108,13 @@ public class UserDao {
     public String toString() {
         return "UserDao{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", firsName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
                 ", password='" + password + '\'' +
                 ", age=" + age +
                 ", roles=" + Arrays.toString(roles) +
+                ", email='" + email + '\'' +
                 '}';
     }
 }
+
