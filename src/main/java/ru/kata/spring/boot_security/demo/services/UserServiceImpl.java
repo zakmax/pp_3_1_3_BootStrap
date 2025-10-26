@@ -106,26 +106,38 @@ public class UserServiceImpl implements UserService {
             return false;
         }
     }
-//        if (!isEmailUnique(userDao)) {
-//            return false;
-//        }
-//        User user = createUserFromForm(userDao); // Используем новый метод для создания
-//        userRepo.save(user);
-//        return true;
-//    }
 
     @Override
     public boolean updateUser(UserDao userDao) {
-        User existingUser = getUserById(userDao.getId());
-        if (existingUser.getEmail().equals(userDao.getEmail()) || isEmailUnique(userDao)) {
+        System.out.println("=== USER SERVICE - UPDATE USER ===");
+        System.out.println("Updating user with ID: " + userDao.getId());
+
+        try {
+            User existingUser = getUserById(userDao.getId());
+            if (existingUser == null) {
+                System.out.println("User not found with ID: " + userDao.getId());
+                return false;
+            }
+
+            // Проверяем email на уникальность, если email изменился
+            if (!existingUser.getEmail().equals(userDao.getEmail()) && !isEmailUnique(userDao)) {
+                System.out.println("Email already exists: " + userDao.getEmail());
+                return false;
+            }
+
             User updatedUser = updateUserFromForm(userDao, existingUser);
             userRepo.save(updatedUser);
+            System.out.println("User updated successfully");
             return true;
+
+        } catch (Exception e) {
+            System.out.println("Error updating user: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
-    // НОВЫЙ МЕТОД для создания пользователя
+    // Метод для создания пользователя
     private User createUserFromForm(UserDao userDao) {
         User user = new User();
         user.setFirstName(userDao.getFirstName());
@@ -145,18 +157,27 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    // Обновленный метод для обновления пользователя
+    // Метод для обновления пользователя
     private User updateUserFromForm(UserDao userDao, User existingUser) {
+        System.out.println("Updating user from form data");
+
         existingUser.setFirstName(userDao.getFirstName());
         existingUser.setLastName(userDao.getLastName());
         existingUser.setAge(userDao.getAge());
         existingUser.setEmail(userDao.getEmail());
 
+        // Обновляем роли
         setRoles(existingUser, userDao);
 
+        // Обновляем пароль только если он указан
         if (userDao.getPassword() != null && !userDao.getPassword().trim().isEmpty()) {
-            existingUser.setPassword(passwordEncoder.encode(userDao.getPassword()));
+            String encodedPassword = passwordEncoder.encode(userDao.getPassword());
+            existingUser.setPassword(encodedPassword);
+            System.out.println("Password updated");
+        } else {
+            System.out.println("Password not changed");
         }
+
         return existingUser;
     }
 
@@ -166,127 +187,58 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
+        System.out.println("Deleting user with ID: " + id);
         userRepo.deleteById(id);
     }
 
     @Override
     public User getUserById(Long id) {
-        return userRepo.findById(id);
+        System.out.println("Getting user by ID: " + id);
+        return userRepo.findById(id).orElse(null);
     }
 
     @Transactional(readOnly = true)
     @Override
     public User getUserByEmail(String email) throws IllegalStateException {
+        System.out.println("Getting user by email: " + email);
         return userRepo.findByEmail(email).orElseThrow(() -> new IllegalStateException("User not found by email"));
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        System.out.println("Loading user by username (email): " + email);
         User user = getUserByEmail(email);
         Hibernate.initialize(user.getRoles());
         return user;
     }
 
     private void setRoles(User user, UserDao userDao) {
+        System.out.println("Setting roles for user");
+
         if (userDao.getRoles() != null && userDao.getRoles().length > 0) {
-            user.setRoles(Arrays.stream(userDao.getRoles())
-                    .map(roleService::getRoleByName)
-                    .collect(Collectors.toSet()));
+            Set<Role> userRoles = Arrays.stream(userDao.getRoles())
+                    .map(roleName -> {
+                        try {
+                            return roleService.getRoleByName(roleName);
+                        } catch (Exception e) {
+                            System.out.println("Role not found: " + roleName);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            user.setRoles(userRoles);
+            System.out.println("Roles set: " + userRoles);
         } else {
             // Устанавливаем роль USER по умолчанию, если не выбрано ни одной роли
-            Role userRole = roleService.getRoleByName("user");
-            user.setRoles(Set.of(userRole));
+            try {
+                Role userRole = roleService.getRoleByName("user");
+                user.setRoles(Set.of(userRole));
+                System.out.println("Default role set: user");
+            } catch (Exception e) {
+                System.out.println("Default role 'user' not found!");
+            }
         }
     }
 }
-
-//    private final UserRepo userRepo;
-//    private final RoleService roleService;
-//    private final PasswordEncoder passwordEncoder;
-//
-//    public UserServiceImpl(UserRepo userRepo, RoleService roleService, PasswordEncoder passwordEncoder) {
-//        this.userRepo = userRepo;
-//        this.roleService = roleService;
-//        this.passwordEncoder = passwordEncoder;
-//    }
-//
-//    public List<User> allUsers() {
-//        return userRepo.findAll();
-//    }
-//
-//    @Override
-//    public boolean addUser(UserDao userDao) {
-//        if (!isEmailUnique(userDao)) {
-//            return false;
-//        }
-//        User user = updateUserFromForm(userDao);
-//        userRepo.save(user);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean updateUser(UserDao userDao) {
-//        if (getUserById(userDao.getId()).getEmail().equals(userDao.getEmail()) || isEmailUnique(userDao)) {
-//            User user = updateUserFromForm(userDao);
-//            userRepo.save(user);
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    private  User updateUserFromForm (UserDao userDao) {
-//        User existingUser = getUserById(userDao.getId());
-//
-
-//        existingUser.setFirstName(userDao.getFirstName());
-//        existingUser.setLastName(userDao.getLastName());
-//        existingUser.setAge(userDao.getAge());
-//        existingUser.setEmail(userDao.getEmail());
-//
-//        setRoles(existingUser, userDao);
-//
-//        if (userDao.getPassword() != null && !userDao.getPassword().trim().isEmpty()) {
-//            existingUser.setPassword(passwordEncoder.encode(userDao.getPassword()));
-//        }
-//        return existingUser;
-//    }
-//
-//    private boolean isEmailUnique(UserDao userDao) {
-//        return !userRepo.findByEmail(userDao.getEmail()).isPresent();
-//    }
-//
-//
-//    @Override
-//    public void deleteUser(Long id) {
-//        userRepo.deleteById(id);
-//    }
-//
-//    @Override
-//    public User getUserById(Long id) {
-//        return userRepo.findById(id);
-//    }
-//
-//
-//
-//    @Transactional(readOnly = true)
-//   @Override
-//    public User getUserByEmail(String email) throws IllegalStateException {
-//        return userRepo.findByEmail(email).orElseThrow(() -> new IllegalStateException("User not found by email"));
-//    }
-//
-//
-//    @Transactional(readOnly = true)
-//    @Override
-//    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-//       User user = getUserByEmail(email);
-//        Hibernate.initialize(user.getRoles());
-//        return user;
-//    }
-//
-//    private void setRoles(User user, UserDao userDao) {
-//        user.setRoles(Arrays.stream(userDao.getRoles())
-//                .map(roleService::getRoleByName)
-//                .collect(Collectors.toSet()));
-//    }
-//}

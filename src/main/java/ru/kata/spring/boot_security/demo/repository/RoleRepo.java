@@ -6,9 +6,8 @@ import ru.kata.spring.boot_security.demo.entities.Role;
 import java.util.List;
 import java.util.Optional;
 
-public interface RoleRepo extends CrudRepository <Role, Integer> {
-
+public interface RoleRepo extends CrudRepository<Role, Long> { // Измените Integer на Long
     List<Role> findAll();
     Optional<Role> findByNameRole(String nameRole);
-    Role findById(Long id);
+    Optional<Role> findById(Long id);
 }

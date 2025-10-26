@@ -10,32 +10,60 @@ import java.util.Arrays;
 
 public class UserDao {
     private Long id;
-//    private String name;
-
-    private  String firstName;
-    private  String lastName;
-
+    private String firstName;
+    private String lastName;
     private String password;
     private Integer age;
     private String[] roles;
     private String email;
 
+    // Конструктор по умолчанию
     public UserDao() {}
 
+    // Конструктор из User entity
     public UserDao(User user) {
-        email = user.getEmail();
-        id = user.getId();
-//        name = user.getName();
+        this.id = user.getId();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.email = user.getEmail();
+        this.password = user.getPassword();
+        this.age = user.getAge();
 
-        firstName = user.getFirstName();
-        lastName = user.getLastName();
-
-        password = user.getPassword();
-        age = user.getAge();
-        Object[] objectArr = user.getRoles().stream().map(Role::getNameRole).toArray();
-        this.roles = Arrays.copyOf(objectArr, objectArr.length, String[].class);
+        // Конвертируем роли в массив строк
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+            Object[] objectArr = user.getRoles().stream()
+                    .map(Role::getNameRole)
+                    .toArray();
+            this.roles = Arrays.copyOf(objectArr, objectArr.length, String[].class);
+        } else {
+            this.roles = new String[0];
+        }
     }
 
+    // Новый конструктор для обновления пользователя
+    public UserDao(Long id, String firstName, String lastName, String password,
+                   Integer age, String[] roles, String email) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = password;
+        this.age = age;
+        this.roles = roles != null ? roles.clone() : new String[0];
+        this.email = email;
+    }
+
+    // Конструктор для создания нового пользователя (без ID)
+    public UserDao(String firstName, String lastName, String password,
+                   Integer age, String[] roles, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = password;
+        this.age = age;
+        this.roles = roles != null ? roles.clone() : new String[0];
+        this.email = email;
+    }
+
+    // Геттеры и сеттеры
     public String getFirstName() {
         return firstName;
     }
@@ -68,14 +96,6 @@ public class UserDao {
         this.id = id;
     }
 
-//    public String getName() {
-//        return name;
-//    }
-//
-//    public void setName(String name) {
-//        this.name = name;
-//    }
-
     public String getPassword() {
         return password;
     }
@@ -93,28 +113,61 @@ public class UserDao {
     }
 
     public String[] getRoles() {
-        return roles;
+        return roles != null ? roles.clone() : new String[0];
     }
 
     public void setRoles(String[] roles) {
-        this.roles = roles;
+        this.roles = roles != null ? roles.clone() : new String[0];
     }
 
-    public String getStringRole(){
+    public String getStringRole() {
+        if (roles == null || roles.length == 0) {
+            return "[]";
+        }
         return Arrays.toString(roles);
+    }
+
+    // Дополнительные полезные методы
+    public boolean hasRole(String roleName) {
+        if (roles == null) {
+            return false;
+        }
+        return Arrays.stream(roles)
+                .anyMatch(role -> role.equalsIgnoreCase(roleName));
+    }
+
+    public boolean isAdmin() {
+        return hasRole("admin");
+    }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
     }
 
     @Override
     public String toString() {
         return "UserDao{" +
                 "id=" + id +
-                ", firsName='" + firstName + '\'' +
+                ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", password='" + password + '\'' +
+                ", password='" + (password != null ? "[SET]" : "[NULL]") + '\'' +
                 ", age=" + age +
                 ", roles=" + Arrays.toString(roles) +
                 ", email='" + email + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserDao userDao = (UserDao) o;
+        return id != null && id.equals(userDao.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }
 

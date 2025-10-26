@@ -36,21 +36,21 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void deleteRole(Long id) {
-        roleRepo.delete(roleRepo.findById(id));
+        roleRepo.deleteById(id); // Используйте deleteById вместо delete
     }
 
     @Override
     public Role getRoleById(Long id) {
-        return roleRepo.findById(id);
+        return roleRepo.findById(id).orElse(null);
     }
+
 
     @Override
     public Role getRoleByName(String role) throws IllegalStateException {
-        return roleRepo.findByNameRole(role).orElseThrow(() -> new IllegalStateException("User not find by name"));
+        return roleRepo.findByNameRole(role).orElseThrow(() -> new IllegalStateException("Role not found by name"));
     }
 
     private boolean isRoleNameUnique(Role role) {
         return !roleRepo.findByNameRole(role.getNameRole()).isPresent();
     }
 }
-

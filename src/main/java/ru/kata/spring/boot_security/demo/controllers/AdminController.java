@@ -22,10 +22,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/admin")
 public class AdminController {
 
-
-
-
-
     private UserService userService;
 
     public AdminController(UserService userService) {
@@ -122,17 +118,82 @@ public class AdminController {
     }
 
     @GetMapping("/updateUserForm")
-    public String updateUser(@RequestParam("id") long id, Model model) {
-        model.addAttribute("user", new UserDao(userService.getUserById(id)));
-        return "updateUserForm";
+    public String showUpdateUserForm(@RequestParam("id") long id, Model model, Authentication authentication) {
+        try {
+            System.out.println("=== UPDATE USER FORM ===");
+            System.out.println("User ID to update: " + id);
+
+            // Получаем текущего пользователя для header
+            User currentUser = userService.getUserByEmail(authentication.getName());
+            model.addAttribute("currentUser", new UserDao(currentUser));
+
+            // Получаем пользователя для редактирования
+            User userToEdit = userService.getUserById(id);
+            if (userToEdit == null) {
+                System.out.println("User not found with ID: " + id);
+                return "redirect:/admin?error=user_not_found";
+            }
+
+            UserDao userDao = new UserDao(userToEdit);
+            model.addAttribute("userDao", userDao);
+
+            System.out.println("User to edit: " + userDao.getFirstName() + " " + userDao.getLastName());
+            System.out.println("User roles: " + Arrays.toString(userDao.getRoles()));
+
+            return "updateUserForm";
+        } catch (Exception e) {
+            System.out.println("Error showing update form: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/admin?error";
+        }
     }
 
     @PostMapping("/editUser")
-    public String editUser(@ModelAttribute("user") UserDao userDao) {
-        if (userService.updateUser(userDao)) {
-            return "redirect:/admin";
+    public String editUser(@ModelAttribute UserDao userDao,
+                           @RequestParam(value = "roles", required = false) String[] roles,
+                           Authentication authentication) {
+
+        System.out.println("=== EDIT USER PROCESSING ===");
+        System.out.println("UserDao ID: " + userDao.getId());
+        System.out.println("First Name: " + userDao.getFirstName());
+        System.out.println("Last Name: " + userDao.getLastName());
+        System.out.println("Email: " + userDao.getEmail());
+        System.out.println("Age: " + userDao.getAge());
+        System.out.println("Password: " + (userDao.getPassword() != null ? "[SET]" : "[NULL]"));
+        System.out.println("Roles param: " + (roles != null ? Arrays.toString(roles) : "null"));
+
+        if (roles != null) {
+            userDao.setRoles(roles);
+            System.out.println("Roles set to UserDao: " + Arrays.toString(userDao.getRoles()));
         } else {
-            return "wrongName";
+            System.out.println("No roles selected, using existing roles");
+            // Если роли не выбраны, сохраняем существующие
+            try {
+                User existingUser = userService.getUserById(userDao.getId());
+                if (existingUser != null) {
+                    UserDao existingUserDao = new UserDao(existingUser);
+                    userDao.setRoles(existingUserDao.getRoles());
+                }
+            } catch (Exception e) {
+                System.out.println("Error getting existing user roles: " + e.getMessage());
+            }
+        }
+
+        try {
+            boolean result = userService.updateUser(userDao);
+            System.out.println("Update user result: " + result);
+
+            if (result) {
+                System.out.println("User updated successfully, redirecting to /admin");
+                return "redirect:/admin";
+            } else {
+                System.out.println("Failed to update user, redirecting with error");
+                return "redirect:/admin/updateUserForm?id=" + userDao.getId() + "&error=update_failed";
+            }
+        } catch (Exception e) {
+            System.out.println("EXCEPTION in editUser: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/admin/updateUserForm?id=" + userDao.getId() + "&error=system_error";
         }
     }
 }
