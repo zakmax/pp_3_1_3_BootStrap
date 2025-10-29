@@ -196,6 +196,28 @@ public class AdminController {
             return "redirect:/admin/updateUserForm?id=" + userDao.getId() + "&error=system_error";
         }
     }
+    @GetMapping("/getUserData")
+    @ResponseBody
+    public UserDao getUserData(@RequestParam("id") long id) {
+        try {
+            System.out.println("=== GET USER DATA FOR MODAL ===");
+            System.out.println("User ID: " + id);
+
+            User user = userService.getUserById(id);
+            if (user == null) {
+                System.out.println("User not found with ID: " + id);
+                throw new RuntimeException("User not found");
+            }
+
+            UserDao userDao = new UserDao(user);
+            System.out.println("Returning user data: " + userDao.getFirstName() + " " + userDao.getLastName());
+
+            return userDao;
+        } catch (Exception e) {
+            System.out.println("Error getting user data: " + e.getMessage());
+            throw new RuntimeException("Error loading user data");
+        }
+    }
 }
 
 

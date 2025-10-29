@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <style>
+        /* Все существующие стили из table.html остаются без изменений */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f5f5;
@@ -238,6 +239,277 @@
             display: flex;
             gap: 5px;
         }
+
+        /* Стили модальных окон - точная копия вашего дизайна */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-container {
+            background: white;
+            width: 9cm;
+            height: 14cm;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-radius: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 10px 15px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 3px;
+            font-weight: 600;
+            color: #333;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 3px;
+            font-size: 12px;
+            box-sizing: border-box;
+            height: 25px;
+            text-align: left;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 1px rgba(0,123,255,0.25);
+        }
+
+        /* Стили для полей только для чтения (серые) */
+        .form-input.readonly {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        .role-container {
+            width: 100%;
+            border: 1px solid #dee2e6;
+            border-radius: 3px;
+            background-color: white;
+            height: 68px;
+            position: relative;
+        }
+
+        .role-container.readonly {
+            background-color: #f8f9fa;
+        }
+
+        .role-option {
+            display: flex;
+            align-items: center;
+            height: 34px;
+            padding: 0 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            border-bottom: 1px solid #dee2e6;
+            text-align: left;
+        }
+
+        .role-option:last-child {
+            border-bottom: none;
+        }
+
+        .role-option:hover {
+            background-color: #e7f3ff;
+            color: #007bff;
+        }
+
+        .role-option.selected {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .role-option.readonly {
+            cursor: default;
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+
+        .role-option.readonly:hover {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+
+        .role-option.readonly.selected {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .role-controls {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 16px;
+            background-color: #f8f9fa;
+            border-left: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 0;
+            pointer-events: none;
+        }
+
+        .scroll-arrow {
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+        }
+
+        .scroll-arrow.up {
+            border-bottom: 4px solid #adb5bd;
+        }
+
+        .scroll-arrow.down {
+            border-top: 4px solid #adb5bd;
+        }
+
+        .modal-footer {
+            padding: 10px 15px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            background-color: #f8f9fa;
+            flex-shrink: 0;
+        }
+
+        .modal-btn {
+            padding: 6px 15px;
+            font-size: 12px;
+            border-radius: 3px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid;
+        }
+
+        .btn-close {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+
+        .btn-close:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        .btn-save {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .btn-delete-modal {
+            background-color: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .btn-delete-modal:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        .current-value {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 3px;
+            padding: 4px 8px;
+            font-size: 12px;
+            color: #495057;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .warning-message {
+            text-align: center;
+            color: #dc3545;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+            padding: 8px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
@@ -306,12 +578,11 @@
                 </td>
                 <td>
                     <div class="action-buttons">
-                        <!-- Edit button -->
-                        <a th:href="@{/admin/updateUserForm(id=${user.id})}" class="btn btn-edit">Edit</a>
+                        <!-- Edit button - открывает модальное окно -->
+                        <button class="btn btn-edit" th:onclick="|openEditModal(${user.id})|">Edit</button>
 
-                        <!-- Delete button -->
-                        <a th:href="@{/admin/delete(id=${user.id})}" class="btn btn-delete"
-                           onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
+                        <!-- Delete button - открывает модальное окно -->
+                        <button class="btn btn-delete" th:onclick="|openDeleteModal(${user.id})|">Delete</button>
                     </div>
                 </td>
             </tr>
@@ -320,6 +591,393 @@
         <div class="divider"></div>
     </div>
 </div>
+
+<!-- Модальное окно для редактирования пользователя -->
+<div id="editModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2 class="modal-title">Edit User</h2>
+            <button type="button" class="close-btn" onclick="closeEditModal()">
+                &times;
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <form id="editUserForm" method="POST" th:action="@{/admin/editUser}">
+                <input type="hidden" id="editUserId" name="id">
+
+                <div class="form-group">
+                    <label class="form-label">ID</label>
+                    <div class="current-value" id="currentId"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">First name</label>
+                    <input type="text"
+                           class="form-input"
+                           id="editFirstName"
+                           name="firstName"
+                           required
+                           placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Last name</label>
+                    <input type="text"
+                           class="form-input"
+                           id="editLastName"
+                           name="lastName"
+                           required
+                           placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Age</label>
+                    <input type="number"
+                           class="form-input"
+                           id="editAge"
+                           name="age"
+                           min="1"
+                           max="120"
+                           placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email"
+                           class="form-input"
+                           id="editEmail"
+                           name="email"
+                           required
+                           placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password"
+                           class="form-input"
+                           id="editPassword"
+                           name="password"
+                           placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <div class="role-container">
+                        <div class="role-option" data-value="admin">ADMIN</div>
+                        <div class="role-option" data-value="user">USER</div>
+                        <div class="role-controls">
+                            <div class="scroll-arrow up"></div>
+                            <div class="scroll-arrow down"></div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="roles" id="roleInput" required>
+                </div>
+            </form>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="modal-btn btn-close" onclick="closeEditModal()">
+                Close
+            </button>
+            <button type="submit" class="modal-btn btn-save" form="editUserForm">
+                Edit
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для удаления пользователя -->
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h2 class="modal-title">Delete User</h2>
+            <button type="button" class="close-btn" onclick="closeDeleteModal()">
+                &times;
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <form id="deleteUserForm" method="POST">
+                <input type="hidden" id="deleteUserId" name="id">
+
+                <div class="form-group">
+                    <label class="form-label">ID</label>
+                    <div class="current-value" id="deleteCurrentId"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">First name</label>
+                    <input type="text"
+                           class="form-input readonly"
+                           id="deleteFirstName"
+                           readonly
+                           placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Last name</label>
+                    <input type="text"
+                           class="form-input readonly"
+                           id="deleteLastName"
+                           readonly
+                           placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Age</label>
+                    <input type="number"
+                           class="form-input readonly"
+                           id="deleteAge"
+                           readonly
+                           placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email"
+                           class="form-input readonly"
+                           id="deleteEmail"
+                           readonly
+                           placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password"
+                           class="form-input readonly"
+                           id="deletePassword"
+                           readonly
+                           value="********"
+                           placeholder="">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <div class="role-container readonly">
+                        <div class="role-option readonly" data-value="admin" id="deleteRoleAdmin">ADMIN</div>
+                        <div class="role-option readonly" data-value="user" id="deleteRoleUser">USER</div>
+                        <div class="role-controls">
+                            <div class="scroll-arrow up"></div>
+                            <div class="scroll-arrow down"></div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="modal-btn btn-close" onclick="closeDeleteModal()">
+                Close
+            </button>
+            <button type="button" class="modal-btn btn-delete-modal" onclick="confirmDelete()">
+                Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Функции для модального окна редактирования
+    function openEditModal(userId) {
+        console.log("Opening edit modal for user ID:", userId);
+        document.getElementById('editModal').style.display = 'flex';
+        loadUserData(userId, 'edit');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+        resetEditForm();
+    }
+
+    function resetEditForm() {
+        document.getElementById('editUserForm').reset();
+        initializeRoles([], 'edit');
+    }
+
+
+        // Функции для модального окна удаления
+        function openDeleteModal(userId) {
+        console.log("Opening delete modal for user ID:", userId);
+        document.getElementById('deleteModal').style.display = 'flex';
+        loadUserData(userId, 'delete');
+    }
+
+        function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+        function confirmDelete() {
+        const userId = document.getElementById('deleteUserId').value;
+        // Убрал confirm - сразу выполняем удаление
+        window.location.href = '/admin/delete?id=' + userId;
+    }
+
+        // Остальной код без изменений...
+        // Функции для модального окна редактирования
+        function openEditModal(userId) {
+        console.log("Opening edit modal for user ID:", userId);
+        document.getElementById('editModal').style.display = 'flex';
+        loadUserData(userId, 'edit');
+    }
+
+        function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+        resetEditForm();
+    }
+
+        function resetEditForm() {
+        document.getElementById('editUserForm').reset();
+        initializeRoles([], 'edit');
+    }
+
+        // Функция для загрузки данных пользователя
+        function loadUserData(userId, modalType) {
+        fetch('/admin/getUserData?id=' + userId)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(userData => {
+                if (modalType === 'edit') {
+                    // Заполняем форму редактирования
+                    document.getElementById('editUserId').value = userData.id;
+                    document.getElementById('currentId').textContent = userData.id;
+                    document.getElementById('editFirstName').value = userData.firstName || '';
+                    document.getElementById('editLastName').value = userData.lastName || '';
+                    document.getElementById('editAge').value = userData.age || '';
+                    document.getElementById('editEmail').value = userData.email || '';
+                    initializeRoles(userData.roles || [], 'edit');
+                } else if (modalType === 'delete') {
+                    // Заполняем форму удаления (только для чтения)
+                    document.getElementById('deleteUserId').value = userData.id;
+                    document.getElementById('deleteCurrentId').textContent = userData.id;
+                    document.getElementById('deleteFirstName').value = userData.firstName || '';
+                    document.getElementById('deleteLastName').value = userData.lastName || '';
+                    document.getElementById('deleteAge').value = userData.age || '';
+                    document.getElementById('deleteEmail').value = userData.email || '';
+                    initializeRoles(userData.roles || [], 'delete');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading user data:', error);
+                alert('Error loading user data. Please try again.');
+                if (modalType === 'edit') closeEditModal();
+                if (modalType === 'delete') closeDeleteModal();
+            });
+    }
+
+        // Функция для инициализации ролей
+        function initializeRoles(userRoles, modalType) {
+        const prefix = modalType === 'edit' ? 'edit' : 'delete';
+        const roleOptions = document.querySelectorAll(`#${prefix}Modal .role-option`);
+        const roleInput = document.getElementById('roleInput');
+
+        // Сбрасываем все роли
+        roleOptions.forEach(option => {
+        option.classList.remove('selected');
+    });
+
+        // Устанавливаем выбранные роли
+        if (userRoles && userRoles.length > 0) {
+        const selectedRoles = [];
+        roleOptions.forEach(option => {
+        const roleValue = option.getAttribute('data-value');
+        if (userRoles.includes(roleValue) || userRoles.includes(roleValue.toUpperCase())) {
+        option.classList.add('selected');
+        selectedRoles.push(roleValue);
+    }
+    });
+        if (roleInput) {
+        roleInput.value = selectedRoles.join(',');
+    }
+    }
+    }
+
+        // Инициализация обработчиков событий после загрузки DOM
+        document.addEventListener('DOMContentLoaded', function() {
+        const roleOptions = document.querySelectorAll('#editModal .role-option');
+        const roleInput = document.getElementById('roleInput');
+        const form = document.getElementById('editUserForm');
+
+        // Обработчик выбора ролей (только для редактирования)
+        roleOptions.forEach(option => {
+        option.addEventListener('click', function() {
+        const roleValue = this.getAttribute('data-value');
+        const isSelected = this.classList.contains('selected');
+
+        if (isSelected) {
+        this.classList.remove('selected');
+        // Удаляем роль из input
+        const currentRoles = roleInput.value ? roleInput.value.split(',') : [];
+        const index = currentRoles.indexOf(roleValue);
+        if (index > -1) {
+        currentRoles.splice(index, 1);
+        roleInput.value = currentRoles.join(',');
+    }
+    } else {
+        this.classList.add('selected');
+        // Добавляем роль в input
+        const currentRoles = roleInput.value ? roleInput.value.split(',') : [];
+        if (!currentRoles.includes(roleValue)) {
+        currentRoles.push(roleValue);
+        roleInput.value = currentRoles.join(',');
+    }
+    }
+    });
+    });
+
+        // Валидация формы редактирования
+        form.addEventListener('submit', function(event) {
+        const firstName = document.getElementById('editFirstName').value.trim();
+        const lastName = document.getElementById('editLastName').value.trim();
+        const email = document.getElementById('editEmail').value.trim();
+        const selectedRoles = document.querySelectorAll('#editModal .role-option.selected');
+
+        if (!firstName || !lastName || !email) {
+        alert('Please fill in all required fields (First Name, Last Name, Email).');
+        event.preventDefault();
+        return;
+    }
+
+        if (selectedRoles.length === 0) {
+        alert('Please select at least one role.');
+        event.preventDefault();
+        return;
+    }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address.');
+        event.preventDefault();
+        return;
+    }
+    });
+
+        // Закрытие модальных окон при клике на фон
+        document.getElementById('editModal').addEventListener('click', function(event) {
+        if (event.target === this) {
+        closeEditModal();
+    }
+    });
+
+        document.getElementById('deleteModal').addEventListener('click', function(event) {
+        if (event.target === this) {
+        closeDeleteModal();
+    }
+    });
+
+        // Закрытие по ESC
+        document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+        closeEditModal();
+        closeDeleteModal();
+    }
+    });
+    });
+</script>
 </body>
 </html>
 
