@@ -1,6 +1,8 @@
 package ru.kata.spring.boot_security.demo.services;
 
 import org.hibernate.Hibernate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,8 +23,6 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService {
 
-
-
     private final UserRepo userRepo;
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
@@ -33,15 +33,18 @@ public class UserServiceImpl implements UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Override
     public List<User> allUsers() {
         return userRepo.findAll();
     }
 
     @Override
     public boolean addUser(UserDao userDao) {
-
         System.out.println("=== USER SERVICE - ADD USER ===");
         System.out.println("Email: " + userDao.getEmail());
+
+
+        validateUserData(userDao);
 
 
         if (!isEmailUnique(userDao)) {
@@ -50,52 +53,14 @@ public class UserServiceImpl implements UserService {
         }
         System.out.println("Email is unique");
 
+        // Проверка пароля
+        if (userDao.getPassword() == null || userDao.getPassword().trim().isEmpty()) {
+            System.out.println("Password is empty!");
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+
         try {
-
-            User user = new User();
-            user.setFirstName(userDao.getFirstName());
-            user.setLastName(userDao.getLastName());
-            user.setEmail(userDao.getEmail());
-            user.setAge(userDao.getAge());
-
-
-            if (userDao.getPassword() != null && !userDao.getPassword().trim().isEmpty()) {
-                String encodedPassword = passwordEncoder.encode(userDao.getPassword());
-                user.setPassword(encodedPassword);
-                System.out.println("Password encoded");
-            } else {
-                System.out.println("Password is empty!");
-                return false;
-            }
-
-
-            if (userDao.getRoles() != null && userDao.getRoles().length > 0) {
-                Set<Role> userRoles = Arrays.stream(userDao.getRoles())
-                        .map(roleName -> {
-                            try {
-                                return roleService.getRoleByName(roleName);
-                            } catch (Exception e) {
-                                System.out.println("Role not found: " + roleName);
-                                return null;
-                            }
-                        })
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toSet());
-                user.setRoles(userRoles);
-                System.out.println("Roles set: " + userRoles);
-            } else {
-
-                try {
-                    Role userRole = roleService.getRoleByName("user");
-                    user.setRoles(Set.of(userRole));
-                    System.out.println("Default role set: user");
-                } catch (Exception e) {
-                    System.out.println("Default role 'user' not found!");
-                    return false;
-                }
-            }
-
-
+            User user = createUserFromForm(userDao);
             userRepo.save(user);
             System.out.println("User saved successfully with ID: " + user.getId());
             return true;
@@ -112,6 +77,9 @@ public class UserServiceImpl implements UserService {
         System.out.println("=== USER SERVICE - UPDATE USER ===");
         System.out.println("Updating user with ID: " + userDao.getId());
 
+
+        validateUserData(userDao);
+
         try {
             User existingUser = getUserById(userDao.getId());
             if (existingUser == null) {
@@ -120,7 +88,7 @@ public class UserServiceImpl implements UserService {
             }
 
 
-            if (!existingUser.getEmail().equals(userDao.getEmail()) && !isEmailUnique(userDao)) {
+            if (!isEmailUniqueForUser(userDao.getId(), userDao.getEmail())) {
                 System.out.println("Email already exists: " + userDao.getEmail());
                 return false;
             }
@@ -135,54 +103,6 @@ public class UserServiceImpl implements UserService {
             e.printStackTrace();
             return false;
         }
-    }
-
-
-    private User createUserFromForm(UserDao userDao) {
-        User user = new User();
-        user.setFirstName(userDao.getFirstName());
-        user.setLastName(userDao.getLastName());
-        user.setAge(userDao.getAge());
-        user.setEmail(userDao.getEmail());
-
-        // Обязательно кодируем пароль
-        if (userDao.getPassword() != null && !userDao.getPassword().trim().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(userDao.getPassword()));
-        } else {
-            throw new IllegalArgumentException("Password cannot be empty");
-        }
-
-
-        setRoles(user, userDao);
-        return user;
-    }
-
-
-    private User updateUserFromForm(UserDao userDao, User existingUser) {
-        System.out.println("Updating user from form data");
-
-        existingUser.setFirstName(userDao.getFirstName());
-        existingUser.setLastName(userDao.getLastName());
-        existingUser.setAge(userDao.getAge());
-        existingUser.setEmail(userDao.getEmail());
-
-
-        setRoles(existingUser, userDao);
-
-
-        if (userDao.getPassword() != null && !userDao.getPassword().trim().isEmpty()) {
-            String encodedPassword = passwordEncoder.encode(userDao.getPassword());
-            existingUser.setPassword(encodedPassword);
-            System.out.println("Password updated");
-        } else {
-            System.out.println("Password not changed");
-        }
-
-        return existingUser;
-    }
-
-    private boolean isEmailUnique(UserDao userDao) {
-        return !userRepo.findByEmail(userDao.getEmail()).isPresent();
     }
 
     @Override
@@ -211,6 +131,82 @@ public class UserServiceImpl implements UserService {
         User user = getUserByEmail(email);
         Hibernate.initialize(user.getRoles());
         return user;
+    }
+
+    @Override
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("User not authenticated");
+        }
+        return getUserByEmail(authentication.getName());
+    }
+
+    @Override
+    public boolean isEmailUniqueForUser(Long userId, String email) {
+        User existingUser = userRepo.findByEmail(email).orElse(null);
+        return existingUser == null || existingUser.getId().equals(userId);
+    }
+
+    @Override
+    public void validateUserData(UserDao userDao) {
+        if (userDao.getFirstName() == null || userDao.getFirstName().trim().isEmpty()) {
+            throw new IllegalArgumentException("First name cannot be empty");
+        }
+        if (userDao.getLastName() == null || userDao.getLastName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Last name cannot be empty");
+        }
+        if (userDao.getEmail() == null || userDao.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        if (userDao.getAge() == null || userDao.getAge() <= 0) {
+            throw new IllegalArgumentException("Age must be positive");
+        }
+    }
+
+
+
+    private User createUserFromForm(UserDao userDao) {
+        User user = new User();
+        user.setFirstName(userDao.getFirstName());
+        user.setLastName(userDao.getLastName());
+        user.setAge(userDao.getAge());
+        user.setEmail(userDao.getEmail());
+
+
+        if (userDao.getPassword() != null && !userDao.getPassword().trim().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userDao.getPassword()));
+        } else {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
+
+        setRoles(user, userDao);
+        return user;
+    }
+
+    private User updateUserFromForm(UserDao userDao, User existingUser) {
+        System.out.println("Updating user from form data");
+
+        existingUser.setFirstName(userDao.getFirstName());
+        existingUser.setLastName(userDao.getLastName());
+        existingUser.setAge(userDao.getAge());
+        existingUser.setEmail(userDao.getEmail());
+
+        setRoles(existingUser, userDao);
+
+        if (userDao.getPassword() != null && !userDao.getPassword().trim().isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(userDao.getPassword());
+            existingUser.setPassword(encodedPassword);
+            System.out.println("Password updated");
+        } else {
+            System.out.println("Password not changed");
+        }
+
+        return existingUser;
+    }
+
+    public boolean isEmailUnique(UserDao userDao) {
+        return !userRepo.findByEmail(userDao.getEmail()).isPresent();
     }
 
     private void setRoles(User user, UserDao userDao) {

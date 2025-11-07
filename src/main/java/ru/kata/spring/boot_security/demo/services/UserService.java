@@ -11,16 +11,17 @@ import java.util.List;
 public interface UserService extends UserDetailsService {
 
     List<User> allUsers();
-
     boolean addUser(UserDao userDto);
-
     boolean updateUser(UserDao userDao);
-
     void deleteUser(Long id);
-
     User getUserById(Long id);
-
     User getUserByEmail(String email);
+
+
+    User getCurrentUser();
+    boolean isEmailUniqueForUser(Long userId, String email);
+    void validateUserData(UserDao userDao);
+    boolean isEmailUnique(UserDao userDao);
 
     @Override
     UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;

@@ -29,14 +29,12 @@ public class AdminController {
     }
 
     @GetMapping
-    public String getAllUsers(Authentication authentication, Model model) {
+    public String getAllUsers(Model model) {
         try {
             System.out.println("=== ADMIN PANEL ===");
 
-
-            User currentUser = userService.getUserByEmail(authentication.getName());
+            User currentUser = userService.getCurrentUser();
             model.addAttribute("currentUser", new UserDao(currentUser));
-
 
             List<UserDao> userDaoList = userService.allUsers().stream()
                     .map(UserDao::new)
@@ -53,12 +51,12 @@ public class AdminController {
     }
 
     @GetMapping("/newUser")
-    public String showNewUserForm(Authentication authentication, Model model,
+    public String showNewUserForm(Model model,
                                   @RequestParam(value = "error", required = false) String error) {
         try {
             System.out.println("=== NEW USER FORM ===");
 
-            User currentUser = userService.getUserByEmail(authentication.getName());
+            User currentUser = userService.getCurrentUser();
             model.addAttribute("currentUser", new UserDao(currentUser));
             model.addAttribute("userDao", new UserDao());
 
@@ -79,12 +77,6 @@ public class AdminController {
                           @RequestParam(value = "roles", required = false) String[] roles) {
 
         System.out.println("=== ADD USER PROCESSING ===");
-        System.out.println("UserDao: " + userDao);
-        System.out.println("First Name: " + userDao.getFirstName());
-        System.out.println("Last Name: " + userDao.getLastName());
-        System.out.println("Email: " + userDao.getEmail());
-        System.out.println("Age: " + userDao.getAge());
-        System.out.println("Password: " + (userDao.getPassword() != null ? "[SET]" : "[NULL]"));
         System.out.println("Roles param: " + (roles != null ? Arrays.toString(roles) : "null"));
 
         if (roles != null) {
@@ -113,20 +105,25 @@ public class AdminController {
     @GetMapping("/delete")
     public String deleteUser(@RequestParam("id") long id) {
         System.out.println("Deleting user with id: " + id);
-        userService.deleteUser(id);
-        return "redirect:/admin";
+        try {
+            userService.deleteUser(id);
+            System.out.println("User deleted successfully");
+            return "redirect:/admin";
+        } catch (Exception e) {
+            System.out.println("Error deleting user: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/admin?error=delete_failed";
+        }
     }
 
     @GetMapping("/updateUserForm")
-    public String showUpdateUserForm(@RequestParam("id") long id, Model model, Authentication authentication) {
+    public String showUpdateUserForm(@RequestParam("id") long id, Model model) {
         try {
             System.out.println("=== UPDATE USER FORM ===");
             System.out.println("User ID to update: " + id);
 
-
-            User currentUser = userService.getUserByEmail(authentication.getName());
+            User currentUser = userService.getCurrentUser();
             model.addAttribute("currentUser", new UserDao(currentUser));
-
 
             User userToEdit = userService.getUserById(id);
             if (userToEdit == null) {
@@ -150,8 +147,7 @@ public class AdminController {
 
     @PostMapping("/editUser")
     public String editUser(@ModelAttribute UserDao userDao,
-                           @RequestParam(value = "roles", required = false) String[] roles,
-                           Authentication authentication) {
+                           @RequestParam(value = "roles", required = false) String[] roles) {
 
         System.out.println("=== EDIT USER PROCESSING ===");
         System.out.println("UserDao ID: " + userDao.getId());
@@ -162,21 +158,13 @@ public class AdminController {
         System.out.println("Password: " + (userDao.getPassword() != null ? "[SET]" : "[NULL]"));
         System.out.println("Roles param: " + (roles != null ? Arrays.toString(roles) : "null"));
 
+        // ВАЖНО: Если роли не выбраны, устанавливаем пустой массив
         if (roles != null) {
             userDao.setRoles(roles);
             System.out.println("Roles set to UserDao: " + Arrays.toString(userDao.getRoles()));
         } else {
-            System.out.println("No roles selected, using existing roles");
-
-            try {
-                User existingUser = userService.getUserById(userDao.getId());
-                if (existingUser != null) {
-                    UserDao existingUserDao = new UserDao(existingUser);
-                    userDao.setRoles(existingUserDao.getRoles());
-                }
-            } catch (Exception e) {
-                System.out.println("Error getting existing user roles: " + e.getMessage());
-            }
+            System.out.println("No roles selected, setting empty roles array");
+            userDao.setRoles(new String[0]); // Устанавливаем пустой массив вместо null
         }
 
         try {
@@ -196,6 +184,7 @@ public class AdminController {
             return "redirect:/admin/updateUserForm?id=" + userDao.getId() + "&error=system_error";
         }
     }
+
     @GetMapping("/getUserData")
     @ResponseBody
     public UserDao getUserData(@RequestParam("id") long id) {

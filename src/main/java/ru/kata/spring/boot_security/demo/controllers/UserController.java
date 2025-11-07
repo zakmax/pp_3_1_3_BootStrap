@@ -21,16 +21,17 @@ public class UserController {
     }
 
     @GetMapping
-    public String getUserPage(Authentication authentication, Model model) {
+    public String getUserPage(Model model) {
         try {
-            User user = userService.getUserByEmail(authentication.getName());
+
+            User user = userService.getCurrentUser();
             model.addAttribute("user", new UserDao(user));
             return "userPage";
         } catch (Exception e) {
-            return "redirect/login?error";
-                }
-            }
-      }
+            return "redirect:/login?error";
+        }
+    }
+}
 
 
 
