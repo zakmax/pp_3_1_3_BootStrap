@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
     <style>
-        /* Все существующие стили из table.html остаются без изменений */
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f5f5;
@@ -240,7 +240,7 @@
             gap: 5px;
         }
 
-        /* Стили модальных окон - точная копия вашего дизайна */
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -338,7 +338,7 @@
             box-shadow: 0 0 0 1px rgba(0,123,255,0.25);
         }
 
-        /* Стили для полей только для чтения (серые) */
+
         .form-input.readonly {
             background-color: #f8f9fa;
             color: #6c757d;
@@ -513,7 +513,7 @@
     </style>
 </head>
 <body>
-<!-- Top Dark Gray Bar -->
+
 <div class="top-bar">
     <div class="user-info">
         <span> </span>
@@ -529,23 +529,23 @@
     </form>
 </div>
 
-<!-- Sidebar -->
+
 <div class="sidebar">
     <a th:href="@{/admin}" class="sidebar-item active">Admin</a>
     <a th:href="@{/user}" class="sidebar-item">User</a>
 </div>
 
-<!-- Main Content -->
+
 <div class="main-content">
     <h1 class="page-title">Admin panel</h1>
 
-    <!-- Navigation Buttons -->
+
     <div class="nav-buttons">
         <button class="nav-button" onclick="location.href='/admin'">Users table</button>
         <a th:href="@{/admin/newUser}" class="nav-button-text">New User</a>
     </div>
 
-    <!-- Users Table Section -->
+
     <div class="table-container">
         <h2 class="section-title">All users</h2>
         <div class="divider"></div>
@@ -592,7 +592,7 @@
     </div>
 </div>
 
-<!-- Модальное окно для редактирования пользователя -->
+
 <div id="editModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
@@ -687,7 +687,7 @@
     </div>
 </div>
 
-<!-- Модальное окно для удаления пользователя -->
+
 <div id="deleteModal" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
@@ -778,7 +778,7 @@
 </div>
 
 <script>
-    // Функции для модального окна редактирования
+
     function openEditModal(userId) {
         console.log("Opening edit modal for user ID:", userId);
         document.getElementById('editModal').style.display = 'flex';
@@ -813,8 +813,7 @@
         window.location.href = '/admin/delete?id=' + userId;
     }
 
-        // Остальной код без изменений...
-        // Функции для модального окна редактирования
+
         function openEditModal(userId) {
         console.log("Opening edit modal for user ID:", userId);
         document.getElementById('editModal').style.display = 'flex';
@@ -831,7 +830,7 @@
         initializeRoles([], 'edit');
     }
 
-        // Функция для загрузки данных пользователя
+
         function loadUserData(userId, modalType) {
         fetch('/admin/getUserData?id=' + userId)
             .then(response => {
@@ -842,7 +841,7 @@
             })
             .then(userData => {
                 if (modalType === 'edit') {
-                    // Заполняем форму редактирования
+
                     document.getElementById('editUserId').value = userData.id;
                     document.getElementById('currentId').textContent = userData.id;
                     document.getElementById('editFirstName').value = userData.firstName || '';
@@ -851,7 +850,7 @@
                     document.getElementById('editEmail').value = userData.email || '';
                     initializeRoles(userData.roles || [], 'edit');
                 } else if (modalType === 'delete') {
-                    // Заполняем форму удаления (только для чтения)
+
                     document.getElementById('deleteUserId').value = userData.id;
                     document.getElementById('deleteCurrentId').textContent = userData.id;
                     document.getElementById('deleteFirstName').value = userData.firstName || '';
@@ -869,18 +868,18 @@
             });
     }
 
-        // Функция для инициализации ролей
+
         function initializeRoles(userRoles, modalType) {
         const prefix = modalType === 'edit' ? 'edit' : 'delete';
         const roleOptions = document.querySelectorAll(`#${prefix}Modal .role-option`);
         const roleInput = document.getElementById('roleInput');
 
-        // Сбрасываем все роли
+
         roleOptions.forEach(option => {
         option.classList.remove('selected');
     });
 
-        // Устанавливаем выбранные роли
+
         if (userRoles && userRoles.length > 0) {
         const selectedRoles = [];
         roleOptions.forEach(option => {
@@ -896,13 +895,13 @@
     }
     }
 
-        // Инициализация обработчиков событий после загрузки DOM
+
         document.addEventListener('DOMContentLoaded', function() {
         const roleOptions = document.querySelectorAll('#editModal .role-option');
         const roleInput = document.getElementById('roleInput');
         const form = document.getElementById('editUserForm');
 
-        // Обработчик выбора ролей (только для редактирования)
+
         roleOptions.forEach(option => {
         option.addEventListener('click', function() {
         const roleValue = this.getAttribute('data-value');
@@ -910,7 +909,7 @@
 
         if (isSelected) {
         this.classList.remove('selected');
-        // Удаляем роль из input
+
         const currentRoles = roleInput.value ? roleInput.value.split(',') : [];
         const index = currentRoles.indexOf(roleValue);
         if (index > -1) {
@@ -919,7 +918,7 @@
     }
     } else {
         this.classList.add('selected');
-        // Добавляем роль в input
+
         const currentRoles = roleInput.value ? roleInput.value.split(',') : [];
         if (!currentRoles.includes(roleValue)) {
         currentRoles.push(roleValue);
@@ -929,7 +928,7 @@
     });
     });
 
-        // Валидация формы редактирования
+
         form.addEventListener('submit', function(event) {
         const firstName = document.getElementById('editFirstName').value.trim();
         const lastName = document.getElementById('editLastName').value.trim();
@@ -956,7 +955,7 @@
     }
     });
 
-        // Закрытие модальных окон при клике на фон
+
         document.getElementById('editModal').addEventListener('click', function(event) {
         if (event.target === this) {
         closeEditModal();
@@ -969,7 +968,7 @@
     }
     });
 
-        // Закрытие по ESC
+
         document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
         closeEditModal();

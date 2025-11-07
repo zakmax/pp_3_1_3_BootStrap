@@ -23,7 +23,7 @@ public class DataLoader {
     public void loadData() {
         System.out.println("=== DataLoader: Initializing application data ===");
 
-        // Создаем роли, если они не существуют
+
         try {
             roleService.getRoleByName("user");
             System.out.println("Role 'user' already exists");
@@ -40,12 +40,12 @@ public class DataLoader {
             System.out.println("Created role 'admin'");
         }
 
-        // Создаем admin пользователя, если его нет
+
         try {
             userService.getUserByEmail("admin@admin.com");
             System.out.println("Admin user already exists");
         } catch (Exception e) {
-            // Создаем admin пользователя
+
             UserDao adminUser = new UserDao();
             adminUser.setFirstName("Admin");
             adminUser.setLastName("Administrator");

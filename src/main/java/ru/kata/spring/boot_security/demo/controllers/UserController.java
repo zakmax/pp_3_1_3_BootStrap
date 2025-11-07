@@ -20,32 +20,6 @@ public class UserController {
         this.userService = userService;
     }
 
-//    @GetMapping
-//    public String getUserPage(Authentication authentication, Model model) {
-//        System.out.println("=== USER CONTROLLER CALLED ===");
-//        System.out.println("Authentication: " + authentication);
-//
-//        if (authentication == null) {
-//            System.out.println("Authentication is NULL - redirecting to login");
-//            return "redirect:/login";
-//        }
-//
-//        System.out.println("User email: " + authentication.getName());
-//
-//        try {
-//            User user = userService.getUserByEmail(authentication.getName());
-//            System.out.println("User found: " + user.getEmail());
-//            model.addAttribute("user", new UserDao(user));
-//            return "userPage";
-//        } catch (Exception e) {
-//            System.out.println("Error in user controller: " + e.getMessage());
-//            e.printStackTrace();
-//            return "redirect:/login?error";
-//        }
-//    }
-//}
-
-
     @GetMapping
     public String getUserPage(Authentication authentication, Model model) {
         try {
@@ -60,8 +34,3 @@ public class UserController {
 
 
 
-
-//        model.addAttribute("user", new UserDao(userService.getUserByEmail(authentication.getName())));
-//        return "userPage";
-//    }
-//}

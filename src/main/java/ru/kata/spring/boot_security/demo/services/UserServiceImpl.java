@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
         System.out.println("=== USER SERVICE - ADD USER ===");
         System.out.println("Email: " + userDao.getEmail());
 
-        // Проверяем уникальность email
+
         if (!isEmailUnique(userDao)) {
             System.out.println("Email already exists: " + userDao.getEmail());
             return false;
@@ -51,14 +51,14 @@ public class UserServiceImpl implements UserService {
         System.out.println("Email is unique");
 
         try {
-            // Создаем нового пользователя
+
             User user = new User();
             user.setFirstName(userDao.getFirstName());
             user.setLastName(userDao.getLastName());
             user.setEmail(userDao.getEmail());
             user.setAge(userDao.getAge());
 
-            // Кодируем пароль
+
             if (userDao.getPassword() != null && !userDao.getPassword().trim().isEmpty()) {
                 String encodedPassword = passwordEncoder.encode(userDao.getPassword());
                 user.setPassword(encodedPassword);
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
                 return false;
             }
 
-            // Устанавливаем роли
+
             if (userDao.getRoles() != null && userDao.getRoles().length > 0) {
                 Set<Role> userRoles = Arrays.stream(userDao.getRoles())
                         .map(roleName -> {
@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
                 user.setRoles(userRoles);
                 System.out.println("Roles set: " + userRoles);
             } else {
-                // Роль по умолчанию
+
                 try {
                     Role userRole = roleService.getRoleByName("user");
                     user.setRoles(Set.of(userRole));
@@ -95,7 +95,7 @@ public class UserServiceImpl implements UserService {
                 }
             }
 
-            // Сохраняем пользователя
+
             userRepo.save(user);
             System.out.println("User saved successfully with ID: " + user.getId());
             return true;
@@ -119,7 +119,7 @@ public class UserServiceImpl implements UserService {
                 return false;
             }
 
-            // Проверяем email на уникальность, если email изменился
+
             if (!existingUser.getEmail().equals(userDao.getEmail()) && !isEmailUnique(userDao)) {
                 System.out.println("Email already exists: " + userDao.getEmail());
                 return false;
@@ -137,7 +137,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    // Метод для создания пользователя
+
     private User createUserFromForm(UserDao userDao) {
         User user = new User();
         user.setFirstName(userDao.getFirstName());
@@ -152,12 +152,12 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("Password cannot be empty");
         }
 
-        // Устанавливаем роли
+
         setRoles(user, userDao);
         return user;
     }
 
-    // Метод для обновления пользователя
+
     private User updateUserFromForm(UserDao userDao, User existingUser) {
         System.out.println("Updating user from form data");
 
@@ -166,10 +166,10 @@ public class UserServiceImpl implements UserService {
         existingUser.setAge(userDao.getAge());
         existingUser.setEmail(userDao.getEmail());
 
-        // Обновляем роли
+
         setRoles(existingUser, userDao);
 
-        // Обновляем пароль только если он указан
+
         if (userDao.getPassword() != null && !userDao.getPassword().trim().isEmpty()) {
             String encodedPassword = passwordEncoder.encode(userDao.getPassword());
             existingUser.setPassword(encodedPassword);
@@ -231,7 +231,7 @@ public class UserServiceImpl implements UserService {
             user.setRoles(userRoles);
             System.out.println("Roles set: " + userRoles);
         } else {
-            // Устанавливаем роль USER по умолчанию, если не выбрано ни одной роли
+
             try {
                 Role userRole = roleService.getRoleByName("user");
                 user.setRoles(Set.of(userRole));

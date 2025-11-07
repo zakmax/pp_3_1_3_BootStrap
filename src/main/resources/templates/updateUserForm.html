@@ -17,7 +17,7 @@
             min-height: 100vh;
         }
 
-        /* Admin Panel Styles */
+
         .top-bar {
             background-color: #333;
             color: white;
@@ -153,7 +153,7 @@
             color: #545b62;
         }
 
-        /* Users Table Styles */
+
         .users-table {
             width: 100%;
             background: white;
@@ -203,7 +203,7 @@
             color: white;
         }
 
-        /* Modal Overlay */
+
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -430,7 +430,7 @@
     </style>
 </head>
 <body>
-<!-- Real Admin Panel -->
+
 <div class="top-bar">
     <div class="user-info">
         <span th:text="${currentUser.email}">admin@mail.ru</span>
@@ -494,7 +494,7 @@
     </table>
 </div>
 
-<!-- Edit User Modal -->
+
 <div class="modal-overlay">
     <div class="modal-container">
         <div class="modal-header">
@@ -590,7 +590,7 @@
         const roleInput = document.getElementById('roleInput');
         const form = document.getElementById('editForm');
 
-        // Initialize role selection based on current user roles
+
         function initializeRoles() {
             const currentRoles = roleInput.value ? roleInput.value.split(',') : [];
             roleOptions.forEach(option => {
@@ -601,7 +601,7 @@
             });
         }
 
-        // Role selection handler
+
         roleOptions.forEach(option => {
             option.addEventListener('click', function() {
                 const roleValue = this.getAttribute('data-value');
@@ -618,7 +618,7 @@
                     }
                 } else {
                     this.classList.add('selected');
-                    // Add role to input
+
                     const currentRoles = roleInput.value ? roleInput.value.split(',') : [];
                     if (!currentRoles.includes(roleValue)) {
                         currentRoles.push(roleValue);
@@ -628,7 +628,7 @@
             });
         });
 
-        // Form validation
+
         form.addEventListener('submit', function(event) {
             const firstName = document.querySelector('input[th\\:field="*{firstName}"]').value.trim();
             const lastName = document.querySelector('input[th\\:field="*{lastName}"]').value.trim();
@@ -655,21 +655,21 @@
             }
         });
 
-        // Close modal on background click
+
         document.querySelector('.modal-overlay').addEventListener('click', function(e) {
             if (e.target === this) {
                 window.location.href = '/admin';
             }
         });
 
-        // Close modal on Escape key
+
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 window.location.href = '/admin';
             }
         });
 
-        // Initialize roles on page load
+
         initializeRoles();
     });
 </script>

@@ -53,24 +53,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll();
 
 
-
-//                .authorizeRequests()
-//                .antMatchers("/admin").hasAuthority("admin")
-//                .antMatchers("/user").hasAnyAuthority("admin","user")
-//
-//                .antMatchers("/login").permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .formLogin()
-//                .usernameParameter("email")
-//                .passwordParameter("password")
-//                .successHandler(new SuccessUserHandler())
-//                .loginPage("/login")
-//                .permitAll()
-//                .and()
-//                .logout()
-//                .permitAll();
-
         http.csrf().disable();
     }
 

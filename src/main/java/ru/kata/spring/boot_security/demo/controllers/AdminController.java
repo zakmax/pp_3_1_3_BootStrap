@@ -33,11 +33,11 @@ public class AdminController {
         try {
             System.out.println("=== ADMIN PANEL ===");
 
-            // Получаем текущего пользователя для header
+
             User currentUser = userService.getUserByEmail(authentication.getName());
             model.addAttribute("currentUser", new UserDao(currentUser));
 
-            // Получаем список всех пользователей
+
             List<UserDao> userDaoList = userService.allUsers().stream()
                     .map(UserDao::new)
                     .collect(Collectors.toList());
@@ -123,11 +123,11 @@ public class AdminController {
             System.out.println("=== UPDATE USER FORM ===");
             System.out.println("User ID to update: " + id);
 
-            // Получаем текущего пользователя для header
+
             User currentUser = userService.getUserByEmail(authentication.getName());
             model.addAttribute("currentUser", new UserDao(currentUser));
 
-            // Получаем пользователя для редактирования
+
             User userToEdit = userService.getUserById(id);
             if (userToEdit == null) {
                 System.out.println("User not found with ID: " + id);
@@ -167,7 +167,7 @@ public class AdminController {
             System.out.println("Roles set to UserDao: " + Arrays.toString(userDao.getRoles()));
         } else {
             System.out.println("No roles selected, using existing roles");
-            // Если роли не выбраны, сохраняем существующие
+
             try {
                 User existingUser = userService.getUserById(userDao.getId());
                 if (existingUser != null) {

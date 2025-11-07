@@ -17,10 +17,10 @@ public class UserDao {
     private String[] roles;
     private String email;
 
-    // Конструктор по умолчанию
+
     public UserDao() {}
 
-    // Конструктор из User entity
+
     public UserDao(User user) {
         this.id = user.getId();
         this.firstName = user.getFirstName();
@@ -29,7 +29,7 @@ public class UserDao {
         this.password = user.getPassword();
         this.age = user.getAge();
 
-        // Конвертируем роли в массив строк
+
         if (user.getRoles() != null && !user.getRoles().isEmpty()) {
             Object[] objectArr = user.getRoles().stream()
                     .map(Role::getNameRole)
@@ -40,7 +40,7 @@ public class UserDao {
         }
     }
 
-    // Новый конструктор для обновления пользователя
+
     public UserDao(Long id, String firstName, String lastName, String password,
                    Integer age, String[] roles, String email) {
         this.id = id;
@@ -52,7 +52,7 @@ public class UserDao {
         this.email = email;
     }
 
-    // Конструктор для создания нового пользователя (без ID)
+
     public UserDao(String firstName, String lastName, String password,
                    Integer age, String[] roles, String email) {
         this.firstName = firstName;
@@ -63,7 +63,7 @@ public class UserDao {
         this.email = email;
     }
 
-    // Геттеры и сеттеры
+
     public String getFirstName() {
         return firstName;
     }
@@ -127,7 +127,7 @@ public class UserDao {
         return Arrays.toString(roles);
     }
 
-    // Дополнительные полезные методы
+
     public boolean hasRole(String roleName) {
         if (roles == null) {
             return false;

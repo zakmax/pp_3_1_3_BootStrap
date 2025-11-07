@@ -310,7 +310,7 @@
     </style>
 </head>
 <body>
-<!-- Top Dark Gray Bar -->
+
 <div class="top-bar">
     <div class="user-info">
         <span th:text="${currentUser.email}">admin@mail.ru</span>
@@ -325,29 +325,29 @@
     </form>
 </div>
 
-<!-- Sidebar -->
+
 <div class="sidebar">
     <a th:href="@{/admin}" class="sidebar-item">Admin</a>
     <a th:href="@{/user}" class="sidebar-item">User</a>
 </div>
 
-<!-- Main Content -->
+
 <div class="main-content">
     <h1 class="page-title">Admin panel</h1>
 
-    <!-- Navigation Buttons -->
+
     <div class="nav-buttons">
         <a th:href="@{/admin}" class="nav-button-blue">Users table</a>
         <a th:href="@{/admin/newUser}" class="nav-button-gray">New User</a>
     </div>
 
-    <!-- Add New User Form Section -->
+
     <div class="form-container">
         <h2 class="section-title">Add new user</h2>
         <div class="divider"></div>
 
         <div class="form-content">
-            <!-- Сообщение об ошибке -->
+
             <div th:if="${errorMessage}" class="error-message">
                 <span th:text="${errorMessage}">Error message</span>
             </div>
@@ -400,18 +400,18 @@
 </div>
 
 <script>
-    // JavaScript для обработки выбора роли
+
     document.addEventListener('DOMContentLoaded', function() {
         const roleOptions = document.querySelectorAll('.role-option');
         const roleInput = document.getElementById('roleInput');
 
         roleOptions.forEach(option => {
             option.addEventListener('click', function() {
-                // Убираем выделение со всех опций
+
                 roleOptions.forEach(opt => opt.classList.remove('selected'));
-                // Выделяем выбранную опцию
+
                 this.classList.add('selected');
-                // Устанавливаем значение в скрытое поле
+
                 roleInput.value = this.getAttribute('data-value');
             });
         });

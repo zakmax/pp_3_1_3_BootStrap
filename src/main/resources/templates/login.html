@@ -124,15 +124,15 @@
     </style>
 </head>
 <body>
-<!-- Заголовок -->
+
 <div class="login-header">Please sign in</div>
 
-<!-- Сообщение об ошибке -->
+
 <div th:if="${param.error}" class="error-message">
     Invalid email or password
 </div>
 
-<!-- Форма -->
+
 <form method="post" th:action="@{/login}">
     <div class="form-group">
         <input type="email" id="email" name="email" required placeholder=" ">
