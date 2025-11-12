@@ -39,13 +39,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<UserDao> getAllUsersAsDao() {
+        return userRepo.findAll().stream()
+                .map(UserDao::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public boolean addUser(UserDao userDao) {
         System.out.println("=== USER SERVICE - ADD USER ===");
         System.out.println("Email: " + userDao.getEmail());
 
-
         validateUserData(userDao);
-
 
         if (!isEmailUnique(userDao)) {
             System.out.println("Email already exists: " + userDao.getEmail());
@@ -53,7 +58,6 @@ public class UserServiceImpl implements UserService {
         }
         System.out.println("Email is unique");
 
-        // Проверка пароля
         if (userDao.getPassword() == null || userDao.getPassword().trim().isEmpty()) {
             System.out.println("Password is empty!");
             throw new IllegalArgumentException("Password cannot be empty");
@@ -77,7 +81,6 @@ public class UserServiceImpl implements UserService {
         System.out.println("=== USER SERVICE - UPDATE USER ===");
         System.out.println("Updating user with ID: " + userDao.getId());
 
-
         validateUserData(userDao);
 
         try {
@@ -86,7 +89,6 @@ public class UserServiceImpl implements UserService {
                 System.out.println("User not found with ID: " + userDao.getId());
                 return false;
             }
-
 
             if (!isEmailUniqueForUser(userDao.getId(), userDao.getEmail())) {
                 System.out.println("Email already exists: " + userDao.getEmail());
@@ -117,11 +119,23 @@ public class UserServiceImpl implements UserService {
         return userRepo.findById(id).orElse(null);
     }
 
+    @Override
+    public UserDao getUserDaoById(Long id) {
+        User user = getUserById(id);
+        return user != null ? new UserDao(user) : null;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public User getUserByEmail(String email) throws IllegalStateException {
         System.out.println("Getting user by email: " + email);
         return userRepo.findByEmail(email).orElseThrow(() -> new IllegalStateException("User not found by email"));
+    }
+
+    @Override
+    public UserDao getCurrentUserAsDao() {
+        User currentUser = getCurrentUser();
+        return new UserDao(currentUser);
     }
 
     @Transactional(readOnly = true)
@@ -164,7 +178,10 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-
+    @Override
+    public boolean isEmailUnique(UserDao userDao) {
+        return !userRepo.findByEmail(userDao.getEmail()).isPresent();
+    }
 
     private User createUserFromForm(UserDao userDao) {
         User user = new User();
@@ -172,7 +189,6 @@ public class UserServiceImpl implements UserService {
         user.setLastName(userDao.getLastName());
         user.setAge(userDao.getAge());
         user.setEmail(userDao.getEmail());
-
 
         if (userDao.getPassword() != null && !userDao.getPassword().trim().isEmpty()) {
             user.setPassword(passwordEncoder.encode(userDao.getPassword()));
@@ -205,10 +221,6 @@ public class UserServiceImpl implements UserService {
         return existingUser;
     }
 
-    public boolean isEmailUnique(UserDao userDao) {
-        return !userRepo.findByEmail(userDao.getEmail()).isPresent();
-    }
-
     private void setRoles(User user, UserDao userDao) {
         System.out.println("Setting roles for user");
 
@@ -227,7 +239,6 @@ public class UserServiceImpl implements UserService {
             user.setRoles(userRoles);
             System.out.println("Roles set: " + userRoles);
         } else {
-
             try {
                 Role userRole = roleService.getRoleByName("user");
                 user.setRoles(Set.of(userRole));

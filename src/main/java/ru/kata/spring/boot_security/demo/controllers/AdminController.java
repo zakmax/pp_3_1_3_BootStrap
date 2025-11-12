@@ -11,10 +11,7 @@ import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import java.net.Authenticator;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 
@@ -33,15 +30,12 @@ public class AdminController {
         try {
             System.out.println("=== ADMIN PANEL ===");
 
-            User currentUser = userService.getCurrentUser();
-            model.addAttribute("currentUser", new UserDao(currentUser));
+            UserDao currentUser = userService.getCurrentUserAsDao();
+            model.addAttribute("currentUser", currentUser);
 
-            List<UserDao> userDaoList = userService.allUsers().stream()
-                    .map(UserDao::new)
-                    .collect(Collectors.toList());
-            model.addAttribute("userList", userDaoList);
+            model.addAttribute("userList", userService.getAllUsersAsDao());
 
-            System.out.println("Users count: " + userDaoList.size());
+            System.out.println("Users count: " + userService.getAllUsersAsDao().size());
             return "table";
         } catch (Exception e) {
             System.out.println("Error in admin panel: " + e.getMessage());
@@ -56,8 +50,8 @@ public class AdminController {
         try {
             System.out.println("=== NEW USER FORM ===");
 
-            User currentUser = userService.getCurrentUser();
-            model.addAttribute("currentUser", new UserDao(currentUser));
+            UserDao currentUser = userService.getCurrentUserAsDao();
+            model.addAttribute("currentUser", currentUser);
             model.addAttribute("userDao", new UserDao());
 
             if ("email_exists".equals(error)) {
@@ -122,16 +116,15 @@ public class AdminController {
             System.out.println("=== UPDATE USER FORM ===");
             System.out.println("User ID to update: " + id);
 
-            User currentUser = userService.getCurrentUser();
-            model.addAttribute("currentUser", new UserDao(currentUser));
+            UserDao currentUser = userService.getCurrentUserAsDao();
+            model.addAttribute("currentUser", currentUser);
 
-            User userToEdit = userService.getUserById(id);
-            if (userToEdit == null) {
+            UserDao userDao = userService.getUserDaoById(id);
+            if (userDao == null) {
                 System.out.println("User not found with ID: " + id);
                 return "redirect:/admin?error=user_not_found";
             }
 
-            UserDao userDao = new UserDao(userToEdit);
             model.addAttribute("userDao", userDao);
 
             System.out.println("User to edit: " + userDao.getFirstName() + " " + userDao.getLastName());
@@ -158,13 +151,12 @@ public class AdminController {
         System.out.println("Password: " + (userDao.getPassword() != null ? "[SET]" : "[NULL]"));
         System.out.println("Roles param: " + (roles != null ? Arrays.toString(roles) : "null"));
 
-        // ВАЖНО: Если роли не выбраны, устанавливаем пустой массив
         if (roles != null) {
             userDao.setRoles(roles);
             System.out.println("Roles set to UserDao: " + Arrays.toString(userDao.getRoles()));
         } else {
             System.out.println("No roles selected, setting empty roles array");
-            userDao.setRoles(new String[0]); // Устанавливаем пустой массив вместо null
+            userDao.setRoles(new String[0]);
         }
 
         try {
@@ -192,13 +184,12 @@ public class AdminController {
             System.out.println("=== GET USER DATA FOR MODAL ===");
             System.out.println("User ID: " + id);
 
-            User user = userService.getUserById(id);
-            if (user == null) {
+            UserDao userDao = userService.getUserDaoById(id);
+            if (userDao == null) {
                 System.out.println("User not found with ID: " + id);
                 throw new RuntimeException("User not found");
             }
 
-            UserDao userDao = new UserDao(user);
             System.out.println("Returning user data: " + userDao.getFirstName() + " " + userDao.getLastName());
 
             return userDao;

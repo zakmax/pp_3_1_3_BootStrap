@@ -10,6 +10,7 @@ import ru.kata.spring.boot_security.demo.entities.User;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 
+
 @Controller
 @RequestMapping("/user")
 public class UserController {
@@ -23,9 +24,8 @@ public class UserController {
     @GetMapping
     public String getUserPage(Model model) {
         try {
-
-            User user = userService.getCurrentUser();
-            model.addAttribute("user", new UserDao(user));
+            UserDao user = userService.getCurrentUserAsDao();
+            model.addAttribute("user", user);
             return "userPage";
         } catch (Exception e) {
             return "redirect:/login?error";
