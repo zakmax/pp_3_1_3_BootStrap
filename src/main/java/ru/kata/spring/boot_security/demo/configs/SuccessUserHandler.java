@@ -12,23 +12,56 @@ import java.io.IOException;
 @Component
 public class SuccessUserHandler implements AuthenticationSuccessHandler {
 
+//    @Override
+//    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+//        System.out.println("=== SUCCESS HANDLER ===");
+//        System.out.println("Redirecting to /admin");
+//
+//        boolean isAdmin = authentication.getAuthorities().stream()
+//                .map(GrantedAuthority::getAuthority)
+//                .anyMatch(role -> role.equals("admin") || role.equals("ADMIN"));
+//
+//        System.out.println("Is admin: " + isAdmin);
+//
+//        if (isAdmin) {
+//            response.sendRedirect("/admin");
+//        } else {
+//            response.sendRedirect("/user");
+//        }
+//    }
+//}
+
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        System.out.println("=== SUCCESS HANDLER ===");
-        System.out.println("Redirecting to /admin");
+        String contentType = request.getContentType();
+        String header = request.getHeader("Accept");
 
-        boolean isAdmin = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch(role -> role.equals("admin") || role.equals("ADMIN"));
+        // Если это REST запрос (JSON)
+        if (contentType != null && contentType.contains("application/json") ||
+                header != null && header.contains("application/json")) {
 
-        System.out.println("Is admin: " + isAdmin);
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
 
-        if (isAdmin) {
-            response.sendRedirect("/admin");
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .anyMatch(role -> role.equals("admin") || role.equals("ADMIN"));
+
+            String jsonResponse = String.format("{\"success\": true, \"isAdmin\": %s}", isAdmin);
+            response.getWriter().write(jsonResponse);
+
         } else {
-            response.sendRedirect("/user");
+            // Если это обычный запрос браузера
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .anyMatch(role -> role.equals("admin") || role.equals("ADMIN"));
+
+            if (isAdmin) {
+                response.sendRedirect("/admin");
+            } else {
+                response.sendRedirect("/user");
+            }
         }
     }
 }
-
-

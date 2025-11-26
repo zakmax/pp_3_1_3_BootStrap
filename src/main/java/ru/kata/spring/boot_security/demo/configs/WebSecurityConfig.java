@@ -13,6 +13,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import static javax.management.Query.and;
+
+
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -35,29 +38,56 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
 
+//                .authorizeRequests()
+//                .antMatchers("/admin").hasAuthority("admin")
+//                .antMatchers("/api/**").permitAll() // РАЗРЕШАЕМ все API endpoints
+//                .antMatchers("/user").authenticated()  // Разрешаем всем аутентифицированным
+//                .antMatchers("/api/auth/**").permitAll() // РАЗРЕШАЕМ ДОСТУП БЕЗ АУТЕНТИФИКАЦИИ
+//                .antMatchers("/api/admin/**").hasAuthority("admin") // REST endpoints для админов
+//                .antMatchers("/api/users/**").authenticated() // REST endpoints для пользователей
+//                .antMatchers("/api/auth/**").permitAll() // PUBLIC REST endpoints
+//                .antMatchers("/login", "/css/**", "/js/**").permitAll()
+//                .anyRequest().authenticated()
+//                .and()
+//                .formLogin()
+//                .usernameParameter("email")
+//                .passwordParameter("password")
+//                .successHandler(new SuccessUserHandler())
+//                .loginPage("/login")
+//                .permitAll()
+//                .and()
+//                .logout()
+//                .logoutSuccessUrl("/login?logout")
+//                .permitAll();
+//
+//        http.csrf().disable();
+//    }
                 .authorizeRequests()
-                .antMatchers("/admin").hasAuthority("admin")
-                .antMatchers("/user").authenticated()  // Разрешаем всем аутентифицированным
+                // РАЗРЕШАЕМ ВСЕ API ЗАПРОСЫ БЕЗ АУТЕНТИФИКАЦИИ
+                .antMatchers("/api/**").permitAll()
+                // Остальные правила для веб-интерфейса
+                .antMatchers("/admin/**").hasAuthority("admin")
+                .antMatchers("/user/**").authenticated()
                 .antMatchers("/login", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .usernameParameter("email")
                 .passwordParameter("password")
-                .successHandler(new SuccessUserHandler())
+                .successHandler(successUserHandler)
                 .loginPage("/login")
                 .permitAll()
                 .and()
                 .logout()
                 .logoutSuccessUrl("/login?logout")
-                .permitAll();
-
-
-        http.csrf().disable();
+                .permitAll()
+                .and()
+                .csrf().disable(); // Отключаем CSRF
+       // .cors(); // ← ДОБАВЬТЕ ЭТУ СТРОКУ для CORS поддержки
     }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }
